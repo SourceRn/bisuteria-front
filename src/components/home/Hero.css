@@ -1,0 +1,126 @@
+.hero {
+  margin: 0 24px 32px;
+  border-radius: var(--radius-lg);
+  background: var(--color-lavender);
+  overflow: hidden;
+}
+
+@media (min-width: 768px) {
+  .hero {
+    margin: 0 auto 40px;
+    max-width: var(--container-max);
+  }
+}
+
+.hero__top {
+  display: grid;
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 640px) {
+  .hero__top {
+    grid-template-columns: 1.1fr 0.9fr;
+    height: 420px; /* altura fija — ajusta este valor a tu gusto */
+  }
+}
+
+.hero__content {
+  padding: 40px 24px 28px;
+}
+
+@media (min-width: 640px) {
+  .hero__content {
+    padding: 44px 12px 32px 48px;
+  }
+}
+
+.hero__badge {
+  display: inline-block;
+  background: rgba(255, 255, 255, 0.5);
+  color: var(--color-lavender-dark);
+  font-size: 12px;
+  padding: 5px 14px;
+  border-radius: var(--radius-full);
+  margin-bottom: 16px;
+  letter-spacing: 0.5px;
+}
+
+.hero__title {
+  font-size: 34px;
+  color: #2E2C4A;
+  margin-bottom: 14px;
+}
+
+@media (min-width: 640px) {
+  .hero__title {
+    font-size: 42px;
+  }
+}
+
+.hero__subtitle {
+  font-size: 15px;
+  color: #4E4A78;
+  max-width: 340px;
+  margin-bottom: 24px;
+  line-height: 1.6;
+}
+
+.hero__actions {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  flex-wrap: wrap;
+}
+
+.hero__visual {
+  height: 220px;
+  background: var(--color-lavender-deep);
+  overflow: hidden;
+  min-height: 0; /* clave: permite que el grid ignore el tamaño natural de la imagen */
+}
+
+@media (min-width: 640px) {
+  .hero__visual {
+    height: 100%;
+    min-height: 0; /* sobreescribe el min-height: 320px que tenías antes */
+  }
+}
+
+.hero__visual {
+  height: 220px;
+  background: var(--color-lavender-deep);
+  overflow: hidden;
+}
+
+@media (min-width: 640px) {
+  .hero__visual {
+    height: 100%;
+    min-height: 320px;
+  }
+}
+
+.hero__image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.hero__trust {
+  border-top: 1px solid rgba(255, 255, 255, 0.35);
+  padding: 16px 12px;
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.hero__trust-item {
+  flex: 1;
+  min-width: 140px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--color-lavender-dark);
+  padding: 6px 12px;
+}

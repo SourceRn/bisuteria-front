@@ -1,0 +1,35 @@
+.featured {
+  padding: 8px 24px 8px;
+  margin-bottom: 8px;
+}
+
+.featured__header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+
+.featured__eyebrow {
+  font-size: 12px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--color-text-soft);
+}
+
+.featured__link {
+  font-size: 13px;
+  color: var(--color-lavender-dark);
+}
+
+.featured__grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+@media (min-width: 760px) {
+  .featured__grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}

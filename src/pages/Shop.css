@@ -1,0 +1,136 @@
+.shop {
+  padding: 32px 24px 60px;
+}
+
+.shop__title {
+  font-size: 32px;
+  margin-bottom: 8px;
+}
+
+.shop__subtitle {
+  font-size: 14px;
+  color: var(--color-text-soft);
+  margin-bottom: 0; /* antes 28px — ya lo maneja el gap del grid */
+}
+
+.shop__layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px 32px;
+}
+
+.shop__header-left,
+.shop__banner-slot,
+.shop__results {
+  grid-column: 1;
+}
+
+.shop__search-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--color-bg-soft);
+  border-radius: var(--radius-full);
+  padding: 8px 14px;
+  font-size: 13px;
+  color: var(--color-text);
+  margin-bottom: 20px;
+}
+
+.shop__search-chip strong {
+  font-weight: 500;
+}
+
+.shop__search-chip button {
+  background: none;
+  border: none;
+  color: var(--color-text-soft);
+  display: flex;
+}
+
+@media (min-width: 860px) {
+  .shop__layout {
+    grid-template-columns: 220px 1fr;
+    align-items: start;
+  }
+
+  .shop__header-left {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .shop__banner-slot {
+    grid-column: 2;
+    grid-row: 1;
+    display: flex;
+    align-items: stretch;
+  }
+
+  /* FilterSidebar renderiza un <aside class="filter-sidebar">,
+     lo ubicamos en la fila 2, columna 1 */
+  .filter-sidebar {
+    grid-column: 1;
+    grid-row: 2;
+  }
+
+  .shop__results {
+    grid-column: 2;
+    grid-row: 2;
+  }
+}
+
+.shop__toolbar {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 18px;
+}
+
+.shop__empty {
+  color: var(--color-text-soft);
+  font-size: 14px;
+  padding: 40px 0;
+  text-align: center;
+}
+
+.shop__grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+@media (min-width: 640px) {
+  .shop__grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 960px) {
+  .shop__grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.shop__toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 18px;
+}
+
+.shop__filter-btn {
+  display: none; /* oculto en desktop, el sidebar ya está visible */
+  align-items: center;
+  gap: 7px;
+  background: var(--color-bg-soft);
+  border: none;
+  border-radius: var(--radius-full);
+  padding: 8px 16px;
+  font-size: 13px;
+  color: var(--color-text);
+}
+
+@media (max-width: 859px) {
+  .shop__filter-btn {
+    display: flex;
+  }
+}

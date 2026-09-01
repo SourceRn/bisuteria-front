@@ -1,0 +1,9 @@
+.sort-dropdown {
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--color-text);
+  background: var(--color-bg-soft);
+  border: none;
+  border-radius: var(--radius-full);
+  padding: 8px 16px;
+}
