@@ -48,6 +48,11 @@
   animation: pop 0.35s ease;
 }
 
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 @keyframes pop {
   0% { transform: scale(1); }
   40% { transform: scale(1.06); }
