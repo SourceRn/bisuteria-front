@@ -1,0 +1,61 @@
+.cuenta {
+  display: flex;
+  justify-content: center;
+  padding: 60px 24px;
+}
+
+.cuenta__card {
+  background: var(--color-bg-soft);
+  border-radius: var(--radius-lg);
+  padding: 36px;
+  width: 100%;
+  max-width: 380px;
+}
+
+.cuenta__title {
+  font-size: 26px;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.cuenta__form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.cuenta__form label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--color-text-soft);
+}
+
+.cuenta__form input {
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--color-text);
+  background: var(--color-bg);
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 11px 14px;
+}
+
+.cuenta__error {
+  font-size: 13px;
+  color: #B85C5C;
+}
+
+.cuenta__toggle {
+  display: block;
+  width: 100%;
+  text-align: center;
+  background: none;
+  border: none;
+  font-size: 13px;
+  color: var(--color-lavender-dark);
+  margin-top: 18px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}

@@ -1,15 +1,19 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useCart } from "../context/CartContext";
-import { obtenerOCrearCliente, crearInteraccion } from "../services/api";
+import { useClienteAuth } from "../context/ClienteAuthContext";
+import { obtenerOCrearCliente, crearInteraccion, registrarCliente, vincularCuenta } from "../services/api";
 import Button from "../components/ui/Button";
 import "./Checkout.css";
 
 export default function Checkout() {
   const { items, subtotal, vaciarCarrito } = useCart();
+  const { perfil } = useClienteAuth();
   const navigate = useNavigate();
 
   const [form, setForm] = useState({ nombre: "", correo: "", telefono: "" });
+  const [crearCuenta, setCrearCuenta] = useState(false);
+  const [password, setPassword] = useState("");
   const [enviando, setEnviando] = useState(false);
   const [error, setError] = useState(null);
   const [completado, setCompletado] = useState(false);
@@ -18,22 +22,49 @@ export default function Checkout() {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   }
 
-  async function handleSubmit(e) {
+  function descripcionPedido() {
+    return items.map((i) => `${i.cantidad}x ${i.product.nombre}`).join(", ");
+  }
+
+  async function handleSubmitConSesion(e) {
+    e.preventDefault();
+    setEnviando(true);
+    setError(null);
+    try {
+      await crearInteraccion({
+        cliente_id: perfil.id,
+        tipo: "Pedido",
+        descripcion: `${descripcionPedido()} — Total: $${subtotal}`,
+      });
+      vaciarCarrito();
+      setCompletado(true);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setEnviando(false);
+    }
+  }
+
+  async function handleSubmitInvitado(e) {
     e.preventDefault();
     setEnviando(true);
     setError(null);
 
     try {
-      const clienteId = await obtenerOCrearCliente(form);
+      let clienteId;
 
-      const descripcionPedido = items
-        .map((i) => `${i.cantidad}x ${i.product.nombre}`)
-        .join(", ");
+      if (crearCuenta) {
+        await registrarCliente(form.correo, password);
+        const cliente = await vincularCuenta({ nombre: form.nombre, telefono: form.telefono });
+        clienteId = cliente.id;
+      } else {
+        clienteId = await obtenerOCrearCliente(form);
+      }
 
       await crearInteraccion({
         cliente_id: clienteId,
         tipo: "Pedido",
-        descripcion: `${descripcionPedido} — Total: $${subtotal}`,
+        descripcion: `${descripcionPedido()} — Total: $${subtotal}`,
       });
 
       vaciarCarrito();
@@ -77,48 +108,84 @@ export default function Checkout() {
       <h1 className="checkout__title">Finalizar pedido</h1>
 
       <div className="checkout__layout">
-        <form className="checkout__form" onSubmit={handleSubmit}>
-          <label>
-            Nombre completo
-            <input
-              type="text"
-              name="nombre"
-              required
-              minLength={2}
-              value={form.nombre}
-              onChange={handleChange}
-            />
-          </label>
+        {perfil ? (
+          <form className="checkout__form" onSubmit={handleSubmitConSesion}>
+            <p className="checkout__logged-as">
+              Comprando como <strong>{perfil.correo}</strong>
+            </p>
 
-          <label>
-            Correo electrónico
-            <input
-              type="email"
-              name="correo"
-              required
-              value={form.correo}
-              onChange={handleChange}
-            />
-          </label>
+            {error && <p className="checkout__error">{error}</p>}
 
-          <label>
-            Teléfono
-            <input
-              type="tel"
-              name="telefono"
-              required
-              minLength={7}
-              value={form.telefono}
-              onChange={handleChange}
-            />
-          </label>
+            <Button type="submit" variant="lavender" disabled={enviando}>
+              {enviando ? "Enviando..." : "Confirmar pedido"}
+            </Button>
+          </form>
+        ) : (
+          <form className="checkout__form" onSubmit={handleSubmitInvitado}>
+            <label>
+              Nombre completo
+              <input
+                type="text"
+                name="nombre"
+                required
+                minLength={2}
+                value={form.nombre}
+                onChange={handleChange}
+              />
+            </label>
 
-          {error && <p className="checkout__error">{error}</p>}
+            <label>
+              Correo electrónico
+              <input
+                type="email"
+                name="correo"
+                required
+                value={form.correo}
+                onChange={handleChange}
+              />
+            </label>
 
-          <Button type="submit" variant="lavender" disabled={enviando}>
-            {enviando ? "Enviando..." : "Confirmar pedido"}
-          </Button>
-        </form>
+            <label>
+              Teléfono
+              <input
+                type="tel"
+                name="telefono"
+                required
+                minLength={7}
+                value={form.telefono}
+                onChange={handleChange}
+              />
+            </label>
+
+            <label className="checkout__checkbox">
+              <input
+                type="checkbox"
+                checked={crearCuenta}
+                onChange={(e) => setCrearCuenta(e.target.checked)}
+              />
+              Crear una cuenta con estos datos para futuras compras
+            </label>
+
+            {crearCuenta && (
+              <label>
+                Contraseña
+                <input
+                  type="password"
+                  required
+                  minLength={6}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                />
+              </label>
+            )}
+
+            {error && <p className="checkout__error">{error}</p>}
+
+            <Button type="submit" variant="lavender" disabled={enviando}>
+              {enviando ? "Enviando..." : "Confirmar pedido"}
+            </Button>
+          </form>
+        )}
 
         <aside className="checkout__summary">
           <h2>Tu pedido</h2>

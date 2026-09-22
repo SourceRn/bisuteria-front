@@ -1,7 +1,7 @@
+import { supabase } from "./supabase";
+
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
-// Crea un cliente nuevo, o si el correo ya existe (409), reutiliza el existente.
-// Devuelve el id del cliente en ambos casos.
 export async function obtenerOCrearCliente({ nombre, correo, telefono }) {
   const res = await fetch(`${API_URL}/clientes`, {
     method: "POST",
@@ -15,16 +15,13 @@ export async function obtenerOCrearCliente({ nombre, correo, telefono }) {
   }
 
   if (res.status === 409) {
-    const buscarRes = await fetch(`${API_URL}/clientes?buscar=${encodeURIComponent(correo)}`);
-    if (!buscarRes.ok) throw new Error("No se pudo verificar el cliente existente");
+    const verificarRes = await fetch(`${API_URL}/clientes/existe?correo=${encodeURIComponent(correo)}`);
+    if (!verificarRes.ok) throw new Error("No se pudo verificar el cliente existente");
 
-    const resultados = await buscarRes.json();
-    const encontrado = resultados.find(
-      (c) => c.correo.toLowerCase() === correo.toLowerCase()
-    );
+    const resultado = await verificarRes.json();
+    if (!resultado.existe) throw new Error("No se encontró el cliente existente");
 
-    if (!encontrado) throw new Error("No se encontró el cliente existente");
-    return encontrado.id;
+    return resultado.id;
   }
 
   const data = await res.json().catch(() => ({}));
@@ -44,5 +41,70 @@ export async function crearInteraccion({ cliente_id, tipo, descripcion }) {
     throw new Error(data.error || "No se pudo registrar el pedido");
   }
 
+  return res.json();
+}
+
+// ==========================
+// Cuentas de cliente
+// ==========================
+
+export async function iniciarSesionCliente(correo, password) {
+  const { error } = await supabase.auth.signInWithPassword({ email: correo, password });
+  if (error) throw new Error(error.message);
+}
+
+export async function registrarCliente(correo, password) {
+  const { data, error } = await supabase.auth.signUp({ email: correo, password });
+  if (error) throw new Error(error.message);
+  return data;
+}
+
+export async function cerrarSesionCliente() {
+  await supabase.auth.signOut();
+}
+
+export async function vincularCuenta({ nombre, telefono }) {
+  const { data } = await supabase.auth.getSession();
+  const token = data.session?.access_token;
+
+  const res = await fetch(`${API_URL}/clientes/vincular-cuenta`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+    body: JSON.stringify({ nombre, telefono }),
+  });
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.error || "No se pudo vincular la cuenta");
+  }
+  return res.json();
+}
+
+export async function getMiPerfilCliente() {
+  const { data } = await supabase.auth.getSession();
+  const token = data.session?.access_token;
+  if (!token) return null;
+
+  const res = await fetch(`${API_URL}/clientes/me`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) return null;
+  return res.json();
+}
+
+export async function getMisPedidos() {
+  const { data } = await supabase.auth.getSession();
+  const token = data.session?.access_token;
+
+  const res = await fetch(`${API_URL}/clientes/me/pedidos`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.error || "No se pudieron cargar tus pedidos");
+  }
   return res.json();
 }

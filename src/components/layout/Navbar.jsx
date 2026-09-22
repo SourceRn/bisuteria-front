@@ -5,11 +5,14 @@ import { useFavorites } from "../../context/FavoritesContext";
 import SearchOverlay from "./SearchOverlay";
 import { useState } from "react";
 import "./Navbar.css";
+import { IconUser } from "@tabler/icons-react";
+import { useClienteAuth } from "../../context/ClienteAuthContext";
 
 export default function Navbar() {
   const { totalItems } = useCart();
   const { favoritos } = useFavorites();
   const [searchOpen, setSearchOpen] = useState(false);
+  const { perfil } = useClienteAuth();
 
   return (
     <header className="navbar">
@@ -46,6 +49,13 @@ export default function Navbar() {
             {totalItems > 0 && (
               <span className="navbar__cart-badge">{totalItems}</span>
             )}
+          </Link>
+          <Link
+            to={perfil ? "/cuenta/pedidos" : "/cuenta"}
+            className="navbar__icon-btn"
+            aria-label={perfil ? "Mi cuenta" : "Iniciar sesión"}
+          >
+            <IconUser size={19} stroke={1.6} />
           </Link>
         </div>
       </div>

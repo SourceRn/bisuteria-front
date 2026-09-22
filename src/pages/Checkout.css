@@ -108,3 +108,21 @@
   padding-top: 14px;
   border-top: 0.5px solid var(--color-bg);
 }
+
+.checkout__logged-as {
+  font-size: 14px;
+  color: var(--color-text-soft);
+  margin-bottom: 8px;
+}
+
+.checkout__checkbox {
+  flex-direction: row !important;
+  align-items: center;
+  gap: 8px !important;
+  font-size: 13px;
+}
+
+.checkout__checkbox input {
+  width: auto;
+  padding: 0 !important;
+}

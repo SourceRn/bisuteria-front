@@ -1,0 +1,58 @@
+.mis-pedidos {
+  padding: 40px 24px 60px;
+  max-width: 640px;
+}
+
+.mis-pedidos__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 36px;
+}
+
+.mis-pedidos__header h1 {
+  font-size: 26px;
+  margin-bottom: 4px;
+}
+
+.mis-pedidos__correo {
+  font-size: 13px;
+  color: var(--color-text-soft);
+}
+
+.mis-pedidos__subtitle {
+  font-size: 18px;
+  margin-bottom: 16px;
+}
+
+.mis-pedidos__error {
+  color: #B85C5C;
+}
+
+.mis-pedidos__empty {
+  color: var(--color-text-soft);
+  font-size: 14px;
+}
+
+.mis-pedidos__list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.mis-pedidos__list li {
+  background: var(--color-bg-soft);
+  border-radius: var(--radius-md);
+  padding: 16px;
+}
+
+.mis-pedidos__desc {
+  font-size: 14px;
+  margin-bottom: 6px;
+}
+
+.mis-pedidos__list time {
+  font-size: 12px;
+  color: var(--color-text-soft);
+}
