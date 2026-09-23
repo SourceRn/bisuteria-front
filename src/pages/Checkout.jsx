@@ -5,10 +5,11 @@ import { useClienteAuth } from "../context/ClienteAuthContext";
 import { obtenerOCrearCliente, crearInteraccion, registrarCliente, vincularCuenta } from "../services/api";
 import Button from "../components/ui/Button";
 import "./Checkout.css";
+import PasswordInput from "../components/ui/PasswordInput";
 
 export default function Checkout() {
   const { items, subtotal, vaciarCarrito } = useCart();
-  const { perfil } = useClienteAuth();
+  const { perfil, establecerPerfil } = useClienteAuth();
   const navigate = useNavigate();
 
   const [form, setForm] = useState({ nombre: "", correo: "", telefono: "" });
@@ -57,6 +58,7 @@ export default function Checkout() {
         await registrarCliente(form.correo, password);
         const cliente = await vincularCuenta({ nombre: form.nombre, telefono: form.telefono });
         clienteId = cliente.id;
+        establecerPerfil(cliente);
       } else {
         clienteId = await obtenerOCrearCliente(form);
       }
@@ -169,8 +171,7 @@ export default function Checkout() {
             {crearCuenta && (
               <label>
                 Contraseña
-                <input
-                  type="password"
+                <PasswordInput
                   required
                   minLength={6}
                   value={password}

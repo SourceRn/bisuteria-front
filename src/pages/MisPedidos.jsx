@@ -3,21 +3,30 @@ import { useClienteAuth } from "../context/ClienteAuthContext";
 import { getMisPedidos } from "../services/api";
 import Button from "../components/ui/Button";
 import "./MisPedidos.css";
+import { useNavigate } from "react-router-dom";
 
 export default function MisPedidos() {
-  const { perfil, logout } = useClienteAuth();
+  const { session, perfil, cargando: cargandoAuth, logout } = useClienteAuth();
+  const navigate = useNavigate();
   const [pedidos, setPedidos] = useState([]);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    if (cargandoAuth) return; // el contexto todavia no termina de resolver la sesion inicial
+
+    if (!session) {
+      navigate("/cuenta");
+      return;
+    }
+
     getMisPedidos()
       .then(setPedidos)
       .catch((err) => setError(err.message))
       .finally(() => setCargando(false));
-  }, []);
+  }, [cargandoAuth, session, navigate]);
 
-  if (!perfil) {
+  if (cargandoAuth || (!session && !cargandoAuth)) {
     return (
       <section className="container mis-pedidos" style={{ textAlign: "center" }}>
         <p>Cargando tu cuenta...</p>

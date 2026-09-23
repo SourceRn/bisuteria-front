@@ -4,6 +4,7 @@ import { iniciarSesionCliente, registrarCliente, vincularCuenta } from "../servi
 import { useClienteAuth } from "../context/ClienteAuthContext";
 import Button from "../components/ui/Button";
 import "./Cuenta.css";
+import PasswordInput from "../components/ui/PasswordInput";
 
 export default function Cuenta() {
   const navigate = useNavigate();
@@ -63,8 +64,7 @@ export default function Cuenta() {
 
           <label>
             Contraseña
-            <input
-              type="password"
+            <PasswordInput
               name="password"
               required
               minLength={6}

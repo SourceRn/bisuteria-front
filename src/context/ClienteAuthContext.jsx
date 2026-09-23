@@ -38,7 +38,14 @@ export function ClienteAuthProvider({ children }) {
     setPerfil(null);
   }
 
-  const value = { session, perfil, cargando, logout, recargarPerfil: cargarPerfil };
+  const value = {
+    session,
+    perfil,
+    cargando,
+    logout,
+    recargarPerfil: cargarPerfil,
+    establecerPerfil: setPerfil, // <- nuevo: permite fijar el perfil sin pedirlo de nuevo al backend
+  };
 
   return <ClienteAuthContext.Provider value={value}>{children}</ClienteAuthContext.Provider>;
 }

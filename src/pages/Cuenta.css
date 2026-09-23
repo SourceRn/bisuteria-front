@@ -41,6 +41,10 @@
   border-radius: var(--radius-sm);
   padding: 11px 14px;
 }
+.checkout__form .password-input input {
+  background: var(--color-bg-soft);
+  padding: 11px 40px 11px 14px;
+}
 
 .cuenta__error {
   font-size: 13px;
