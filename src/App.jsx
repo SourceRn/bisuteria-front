@@ -15,26 +15,26 @@ import MisPedidos from "./pages/MisPedidos";
 
 export default function App() {
   return (
-    <CartProvider>
-      <FavoritesProvider>
-        <ClienteAuthProvider>
-          <BrowserRouter>
-            <Layout>
-              <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/tienda" element={<Shop />} />
-                <Route path="/producto/:id" element={<ProductDetail />} />
-                <Route path="/carrito" element={<Cart />} />
-                <Route path="/checkout" element={<Checkout />} />
-                <Route path="/nosotros" element={<About />} />
-                <Route path="/favoritos" element={<Favorites />} />
-                <Route path="/cuenta" element={<Cuenta />} />
-                <Route path="/cuenta/pedidos" element={<MisPedidos />} />
-              </Routes>
-            </Layout>
-          </BrowserRouter>
-        </ClienteAuthProvider>
-      </FavoritesProvider>
-    </CartProvider>
+    <ClienteAuthProvider>
+      <CartProvider>
+        <FavoritesProvider>
+            <BrowserRouter>
+              <Layout>
+                <Routes>
+                  <Route path="/" element={<Home />} />
+                  <Route path="/tienda" element={<Shop />} />
+                  <Route path="/producto/:id" element={<ProductDetail />} />
+                  <Route path="/carrito" element={<Cart />} />
+                  <Route path="/checkout" element={<Checkout />} />
+                  <Route path="/nosotros" element={<About />} />
+                  <Route path="/favoritos" element={<Favorites />} />
+                  <Route path="/cuenta" element={<Cuenta />} />
+                  <Route path="/cuenta/pedidos" element={<MisPedidos />} />
+                </Routes>
+              </Layout>
+            </BrowserRouter>
+        </FavoritesProvider>
+      </CartProvider>
+    </ClienteAuthProvider>
   );
 }
