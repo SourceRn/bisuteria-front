@@ -1,25 +1,17 @@
 import { createContext, useContext, useState, useMemo, useEffect, useRef } from "react";
 import { useClienteAuth } from "./ClienteAuthContext";
-import { products as catalogo } from "../data/products";
 import { loadGuest, saveGuest, clearGuest, loadAccount, saveAccount } from "../utils/scopedStorage";
 
 const CART_NAME = "cart";
 const CartContext = createContext(null);
 
-// Solo guardamos id + cantidad; el objeto "product" completo se re-arma
-// consultando el catalogo, para no duplicar datos que ya viven en otro lado.
 function serializeItems(items) {
-  return items.map((i) => ({ productId: i.product.id, cantidad: i.cantidad }));
+  return items.map((i) => ({ product: i.product, cantidad: i.cantidad }));
 }
 
 function deserializeItems(raw) {
   if (!Array.isArray(raw)) return [];
-  return raw
-    .map((r) => {
-      const product = catalogo.find((p) => p.id === r.productId);
-      return product ? { product, cantidad: r.cantidad } : null;
-    })
-    .filter(Boolean);
+  return raw.filter((r) => r.product && r.product.id);
 }
 
 // Union de dos carritos: si el mismo producto esta en ambos, se suman cantidades.

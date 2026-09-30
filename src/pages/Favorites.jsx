@@ -1,13 +1,34 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import ProductCard from "../components/ui/ProductCard";
-import { products } from "../data/products";
 import { useFavorites } from "../context/FavoritesContext";
+import { getCatalogo } from "../services/catalogo";
 import Button from "../components/ui/Button";
 import "./Shop.css"; // reutilizamos el mismo estilo de grid que la tienda
 
 export default function Favorites() {
   const { favoritos } = useFavorites();
+  const [products, setProducts] = useState([]);
+  const [cargando, setCargando] = useState(true);
+
+  useEffect(() => {
+    getCatalogo()
+      .then((data) => {
+        const normalizados = data.map((p) => ({ ...p, precio: p.precio_venta }));
+        setProducts(normalizados);
+      })
+      .finally(() => setCargando(false));
+  }, []);
+
   const productosFavoritos = products.filter((p) => favoritos.includes(p.id));
+
+  if (cargando) {
+    return (
+      <section className="container" style={{ padding: "80px 24px", textAlign: "center" }}>
+        <p>Cargando...</p>
+      </section>
+    );
+  }
 
   if (productosFavoritos.length === 0) {
     return (

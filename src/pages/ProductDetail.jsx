@@ -1,30 +1,36 @@
+import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import { IconFlower, IconCheck, IconLeaf, IconSparkles, IconHeart, IconHeartFilled  } from "@tabler/icons-react";
-import { products } from "../data/products";
+import { IconFlower, IconHeart, IconHeartFilled } from "@tabler/icons-react";
+import { getCatalogo } from "../services/catalogo";
 import { useCart } from "../context/CartContext";
-import { useState } from "react";
 import { useFavorites } from "../context/FavoritesContext";
 import Button from "../components/ui/Button";
 import "./ProductDetail.css";
 
-const ICONOS = {
-  lavender: IconFlower,
-  sage: IconLeaf,
-  violet: IconSparkles,
-  gold: IconSparkles,
-};
-
 export default function ProductDetail() {
   const { id } = useParams();
   const { agregarProducto } = useCart();
+  const [product, setProduct] = useState(null);
+  const [cargando, setCargando] = useState(true);
   const { esFavorito, toggleFavorito } = useFavorites();
-  const product = products.find((p) => p.id === id);
-  const [agregado, setAgregado] = useState(false);
 
-  function handleAgregar() {
-    agregarProducto(product, 1);
-    setAgregado(true);
-    setTimeout(() => setAgregado(false), 900);
+  useEffect(() => {
+    getCatalogo()
+      .then((data) => {
+        const encontrado = data.find((p) => p.id === id);
+        if (encontrado) {
+          setProduct({ ...encontrado, precio: encontrado.precio_venta });
+        }
+      })
+      .finally(() => setCargando(false));
+  }, [id]);
+
+  if (cargando) {
+    return (
+      <section className="container" style={{ padding: "60px 24px" }}>
+        <p>Cargando...</p>
+      </section>
+    );
   }
 
   if (!product) {
@@ -36,39 +42,23 @@ export default function ProductDetail() {
     );
   }
 
-  const Icono = ICONOS[product.colorTema] || IconSparkles;
-
   return (
     <section className="product-detail container">
-      <div className={`product-detail__image product-detail__image--${product.colorTema}`}>
-        {product.imagen ? (
-          <img src={product.imagen} alt={product.nombre} className="product-detail__photo" />
-        ) : (
-          <Icono
-            size={64}
-            stroke={1.2}
-            style={product.colorTema === "gold" ? { opacity: 0.6 } : undefined}
-          />
-        )}
+      <div className="product-detail__image">
+        <IconFlower size={64} stroke={1.2} />
       </div>
 
       <div className="product-detail__info">
-        <p className="product-detail__stone">{product.piedra}</p>
+        <p className="product-detail__stone">{product.categoria || "Pieza artesanal"}</p>
         <h1 className="product-detail__name">{product.nombre}</h1>
         <p className="product-detail__price">${product.precio}</p>
-        <p className="product-detail__intention">Intención: {product.intencion}</p>
-        <p className="product-detail__desc">{product.descripcion}</p>
+        <p className="product-detail__desc">{product.descripcion || "Pieza hecha a mano."}</p>
 
         <div className="product-detail__actions">
-          <Button variant="lavender" onClick={handleAgregar} className={agregado ? "is-added" : ""}>
-            {agregado ? (
-              <>
-                <IconCheck size={16} stroke={2.5} /> Agregado
-              </>
-            ) : (
-              "Agregar al carrito"
-            )}
+          <Button variant="lavender" onClick={() => agregarProducto(product, 1)}>
+            Agregar al carrito
           </Button>
+
           <button
             className="product-detail__fav"
             onClick={() => toggleFavorito(product.id)}
@@ -87,7 +77,7 @@ export default function ProductDetail() {
         </div>
 
         <p className="product-detail__stock">
-          {product.stock > 0 ? `${product.stock} disponibles` : "Agotado"}
+          {product.stock_actual > 0 ? `${product.stock_actual} disponibles` : "Agotado"}
         </p>
       </div>
     </section>

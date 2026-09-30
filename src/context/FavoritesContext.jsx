@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect, useRef } from "react";
 import { useClienteAuth } from "./ClienteAuthContext";
+import { getCatalogo } from "../services/catalogo";
 import { loadGuest, saveGuest, clearGuest, loadAccount, saveAccount } from "../utils/scopedStorage";
 
 const FAV_NAME = "favorites";
@@ -12,8 +13,15 @@ function mergeFavoritos(a, b) {
 export function FavoritesProvider({ children }) {
   const { session, perfil, cargando: cargandoAuth } = useClienteAuth();
   const [favoritos, setFavoritos] = useState([]);
+  const [catalogoIds, setCatalogoIds] = useState(null);
+  const [favoritosListos, setFavoritosListos] = useState(false);
   const scopeRef = useRef({ tipo: "guest" });
-  const listoRef = useRef(false);
+
+  useEffect(() => {
+    getCatalogo()
+      .then((data) => setCatalogoIds(new Set(data.map((p) => p.id))))
+      .catch(() => setCatalogoIds(new Set()));
+  }, []);
 
   useEffect(() => {
     if (cargandoAuth) return;
@@ -36,18 +44,30 @@ export function FavoritesProvider({ children }) {
       scopeRef.current = { tipo: "guest" };
       setFavoritos(loadGuest(FAV_NAME, []));
     }
-    listoRef.current = true;
+    setFavoritosListos(true);
   }, [session, perfil, cargandoAuth]);
 
   useEffect(() => {
-    if (!listoRef.current) return;
+    if (!favoritosListos) return;
     const scope = scopeRef.current;
     if (scope.tipo === "cuenta") {
       saveAccount(FAV_NAME, scope.clienteId, favoritos);
     } else {
       saveGuest(FAV_NAME, favoritos);
     }
-  }, [favoritos]);
+  }, [favoritos, favoritosListos]);
+
+  // Limpia favoritos huerfanos (productos eliminados del catalogo).
+  // Depende de AMBOS: catalogoIds y favoritosListos, para que se re-evalue
+  // sin importar cual de los dos termine de cargar primero.
+  useEffect(() => {
+    if (!catalogoIds || !favoritosListos) return;
+
+    setFavoritos((prev) => {
+      const limpios = prev.filter((id) => catalogoIds.has(id));
+      return limpios.length === prev.length ? prev : limpios;
+    });
+  }, [catalogoIds, favoritosListos]);
 
   function toggleFavorito(productId) {
     setFavoritos((prev) =>

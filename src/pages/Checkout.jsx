@@ -6,6 +6,7 @@ import { obtenerOCrearCliente, crearInteraccion, registrarCliente, vincularCuent
 import Button from "../components/ui/Button";
 import "./Checkout.css";
 import PasswordInput from "../components/ui/PasswordInput";
+import { registrarVenta } from "../services/catalogo";
 
 export default function Checkout() {
   const { items, subtotal, vaciarCarrito } = useCart();
@@ -37,6 +38,11 @@ export default function Checkout() {
         tipo: "Pedido",
         descripcion: `${descripcionPedido()} — Total: $${subtotal}`,
       });
+      await Promise.all(
+        items.map((i) => registrarVenta(i.product.id, i.cantidad).catch((err) => {
+          console.error(`No se pudo descontar stock de ${i.product.nombre}:`, err.message);
+        }))
+      );
       vaciarCarrito();
       setCompletado(true);
     } catch (err) {
@@ -68,6 +74,11 @@ export default function Checkout() {
         tipo: "Pedido",
         descripcion: `${descripcionPedido()} — Total: $${subtotal}`,
       });
+      await Promise.all(
+        items.map((i) => registrarVenta(i.product.id, i.cantidad).catch((err) => {
+          console.error(`No se pudo descontar stock de ${i.product.nombre}:`, err.message);
+        }))
+      );
 
       vaciarCarrito();
       setCompletado(true);
