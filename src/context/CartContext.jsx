@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useMemo, useEffect, useRef } from "react";
 import { useClienteAuth } from "./ClienteAuthContext";
+import { getCatalogo } from "../services/catalogo";
 import { loadGuest, saveGuest, clearGuest, loadAccount, saveAccount } from "../utils/scopedStorage";
 
 const CART_NAME = "cart";
@@ -27,8 +28,19 @@ function mergeItems(a, b) {
 export function CartProvider({ children }) {
   const { session, perfil, cargando: cargandoAuth } = useClienteAuth();
   const [items, setItems] = useState([]);
+  const [catalogoActual, setCatalogoActual] = useState(null); // null = aun no cargado
+  const [listo, setListo] = useState(false); // evita persistir antes de haber cargado el estado inicial
   const scopeRef = useRef({ tipo: "guest" });
-  const listoRef = useRef(false); // evita persistir antes de haber cargado el estado inicial
+
+  // Carga el catalogo real, para poder sincronizar el carrito contra el
+  useEffect(() => {
+    getCatalogo()
+      .then((data) => {
+        const normalizado = data.map((p) => ({ ...p, precio: p.precio_venta }));
+        setCatalogoActual(normalizado);
+      })
+      .catch(() => setCatalogoActual([]));
+  }, []);
 
   // Carga inicial y fusion al iniciar/cerrar sesion
   useEffect(() => {
@@ -52,19 +64,48 @@ export function CartProvider({ children }) {
       scopeRef.current = { tipo: "guest" };
       setItems(deserializeItems(loadGuest(CART_NAME, [])));
     }
-    listoRef.current = true;
+    setListo(true);
   }, [session, perfil, cargandoAuth]);
 
   // Persiste cada cambio en la clave activa (invitado o cuenta)
   useEffect(() => {
-    if (!listoRef.current) return;
+    if (!listo) return;
     const scope = scopeRef.current;
     if (scope.tipo === "cuenta") {
       saveAccount(CART_NAME, scope.clienteId, serializeItems(items));
     } else {
       saveGuest(CART_NAME, serializeItems(items));
     }
-  }, [items]);
+  }, [items, listo]);
+
+  // Sincroniza el carrito contra el catalogo real: quita productos eliminados,
+  // y actualiza precio/stock si cambiaron desde que se agregaron al carrito.
+  useEffect(() => {
+    if (!catalogoActual || !listo) return;
+
+    setItems((prev) => {
+      let cambio = false;
+      const actualizados = prev
+        .map((item) => {
+          const productoReal = catalogoActual.find((p) => p.id === item.product.id);
+          if (!productoReal) {
+            cambio = true;
+            return null; // ya no existe, se elimina
+          }
+          if (
+            productoReal.precio !== item.product.precio ||
+            productoReal.stock_actual !== item.product.stock_actual
+          ) {
+            cambio = true;
+            return { ...item, product: productoReal };
+          }
+          return item;
+        })
+        .filter(Boolean);
+
+      return cambio ? actualizados : prev;
+    });
+  }, [catalogoActual, listo]);
 
   function agregarProducto(product, cantidad = 1) {
     setItems((prev) => {
