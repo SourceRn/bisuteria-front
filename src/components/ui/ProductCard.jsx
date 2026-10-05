@@ -16,10 +16,15 @@ const ICONOS = {
 
 export default function ProductCard({ product }) {
   const { agregarProducto } = useCart();
-  const Icono = ICONOS[product.colorTema] || IconSparkles;
   const { esFavorito, toggleFavorito } = useFavorites();
   const favorito = esFavorito(product.id);
   const [agregado, setAgregado] = useState(false);
+  const [imgError, setImgError] = useState(false);
+
+  const imagen = product.imagen_url || product.imagen;
+  const tema = product.colorTema || "lavender";
+  const Icono = ICONOS[tema] || IconSparkles;
+  const mostrarFoto = imagen && !imgError;
 
   function handleAgregar(e) {
     e.preventDefault();
@@ -44,22 +49,28 @@ export default function ProductCard({ product }) {
       </button>
       {product.nuevo && <span className="product-card__badge">Nuevo</span>}
 
-      <div className={`product-card__image product-card__image--${product.colorTema}`}>
-        {product.imagen ? (
-          <img src={product.imagen} alt={product.nombre} className="product-card__photo" />
+      <div className={`product-card__image ${mostrarFoto ? "" : `product-card__image--${tema}`}`}>
+        {mostrarFoto ? (
+          <img
+            src={imagen}
+            alt={product.nombre}
+            className="product-card__photo"
+            loading="lazy"
+            onError={() => setImgError(true)}
+          />
         ) : (
-          <Icono size={30} stroke={1.4} style={product.colorTema === "gold" ? { opacity: 0.6 } : undefined} />
+          <Icono size={30} stroke={1.4} style={tema === "gold" ? { opacity: 0.6 } : undefined} />
         )}
       </div>
 
       <div className="product-card__info">
         <p className="product-card__name">{product.nombre}</p>
-        <p className="product-card__stone">{product.piedra}</p>
+        <p className="product-card__stone">{product.piedra || product.categoria}</p>
 
         <div className="product-card__footer">
           <p className="product-card__price">${product.precio}</p>
           <button
-            className={`product-card__add product-card__add--${product.colorTema} ${agregado ? "is-added" : ""}`}
+            className={`product-card__add product-card__add--${tema} ${agregado ? "is-added" : ""}`}
             onClick={handleAgregar}
             aria-label={`Agregar ${product.nombre} al carrito`}
           >

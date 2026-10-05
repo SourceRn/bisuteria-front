@@ -36,7 +36,13 @@ export function CartProvider({ children }) {
   useEffect(() => {
     getCatalogo()
       .then((data) => {
-        const normalizado = data.map((p) => ({ ...p, precio: p.precio_venta }));
+        // CAMBIO 1: ahora tambien se normalizan imagen y piedra
+        const normalizado = data.map((p) => ({
+          ...p,
+          precio: p.precio_venta,
+          imagen: p.imagen_url,
+          piedra: p.categoria,
+        }));
         setCatalogoActual(normalizado);
       })
       .catch(() => setCatalogoActual([]));
@@ -79,7 +85,7 @@ export function CartProvider({ children }) {
   }, [items, listo]);
 
   // Sincroniza el carrito contra el catalogo real: quita productos eliminados,
-  // y actualiza precio/stock si cambiaron desde que se agregaron al carrito.
+  // y actualiza precio/stock/imagen si cambiaron desde que se agregaron al carrito.
   useEffect(() => {
     if (!catalogoActual || !listo) return;
 
@@ -92,9 +98,12 @@ export function CartProvider({ children }) {
             cambio = true;
             return null; // ya no existe, se elimina
           }
+          // CAMBIO 2: tambien se compara imagen y piedra
           if (
             productoReal.precio !== item.product.precio ||
-            productoReal.stock_actual !== item.product.stock_actual
+            productoReal.stock_actual !== item.product.stock_actual ||
+            productoReal.imagen !== item.product.imagen ||
+            productoReal.piedra !== item.product.piedra
           ) {
             cambio = true;
             return { ...item, product: productoReal };

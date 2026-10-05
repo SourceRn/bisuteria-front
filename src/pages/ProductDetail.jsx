@@ -10,18 +10,29 @@ import "./ProductDetail.css";
 export default function ProductDetail() {
   const { id } = useParams();
   const { agregarProducto } = useCart();
+  const { esFavorito, toggleFavorito } = useFavorites();
   const [product, setProduct] = useState(null);
   const [cargando, setCargando] = useState(true);
-  const { esFavorito, toggleFavorito } = useFavorites();
+  const [imgError, setImgError] = useState(false);
 
   useEffect(() => {
+    setCargando(true);
+    setImgError(false);
     getCatalogo()
       .then((data) => {
         const encontrado = data.find((p) => p.id === id);
         if (encontrado) {
-          setProduct({ ...encontrado, precio: encontrado.precio_venta });
+          setProduct({
+            ...encontrado,
+            precio: encontrado.precio_venta,
+            imagen: encontrado.imagen_url,
+            piedra: encontrado.categoria,
+          });
+        } else {
+          setProduct(null);
         }
       })
+      .catch(() => setProduct(null))
       .finally(() => setCargando(false));
   }, [id]);
 
@@ -42,10 +53,26 @@ export default function ProductDetail() {
     );
   }
 
+  // Aquí product ya existe, es seguro leer sus campos
+  const mostrarFoto = product.imagen_url && !imgError;
+
   return (
     <section className="product-detail container">
-      <div className="product-detail__image">
-        <IconFlower size={64} stroke={1.2} />
+      <div
+        className={`product-detail__image ${
+          mostrarFoto ? "" : "product-detail__image--lavender"
+        }`}
+      >
+        {mostrarFoto ? (
+          <img
+            src={product.imagen_url}
+            alt={product.nombre}
+            className="product-detail__photo"
+            onError={() => setImgError(true)}
+          />
+        ) : (
+          <IconFlower size={64} stroke={1.2} />
+        )}
       </div>
 
       <div className="product-detail__info">
